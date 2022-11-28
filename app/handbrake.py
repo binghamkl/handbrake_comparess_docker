@@ -20,12 +20,16 @@ def ConvertFile(src_dir : str, file : str, preset = "Fast 1080p30"):
         print(str(ex), flush=True)
         print(file, flush=True)
 
-
+def valid_file(file : str):
+    if file.endswith(".ts")
+        return True
+    return False
 
 source_dir = "/source"
 for dir, directories, files in os.walk(source_dir):
     for file in files:
-        ConvertFile(dir, file)
+        if valid_file(file):
+            ConvertFile(dir, file)
 
 while True:
     time.sleep(10)
