@@ -1,23 +1,31 @@
 import time
 import datetime
 import os
+import subprocess
 
-
-def ConvertFile(file, preset = "Fast 1080p30"):
+def ConvertFile(src_dir : str, file : str, preset = "Fast 1080p30"):
     try:
+        preset = "Very Fast 720p30"
         newfile = file[:-3] + ".mp4"
-        os.execl("HandBrakeCLI", "-i", "\"" + os.path.join(source_dir, file) + "\"", "-o", '"' + os.path.join(source_dir, newfile) + '"', "--preset", preset)
+        args = ["-i", os.path.join(src_dir, file),  "-o", os.path.join(src_dir, newfile), "--preset", preset]
+        # subprocess.Popen(["HandBrakeCLI"] + args)
+        try:
+            subprocess.check_call(["HandBrakeCLI"] + args)
+        except subprocess.CalledProcessError as ex1:
+            print(str(ex1))
         print ("complete", flush=True)
-    except:
+    except Exception as ex:
         print("Error ")
+        print(args, flush=True)
+        print(str(ex), flush=True)
         print(file, flush=True)
 
 
+
 source_dir = "/source"
-files = os.listdir(source_dir)
-for file in files:
-    if file.endswith(".ts"):
-        ConvertFile(file)
+for dir, directories, files in os.walk(source_dir):
+    for file in files:
+        ConvertFile(dir, file)
 
 while True:
     time.sleep(10)
