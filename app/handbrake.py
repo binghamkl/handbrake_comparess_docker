@@ -101,7 +101,7 @@ def write_summary(results : list):
         existed = os.path.exists(log_file)
         file = open(log_file, "a")
         if not existed:
-            print("{0:22}{1:10}{1:10}{1:10}".format("DateTime", "Files2Conv", "Success", "Errors"), file=file)
+            print("{0:22}{1:10}{2:10}{3:10}".format("DateTime", "Files", "Success", "Errors"), file=file)
 
         date_str = dt.now().strftime("%m/%d/%Y, %H:%M:%S")
         print("{0:22}{1:10}{1:10}{1:10}".format(date_str, results[0], results[1], results[2]), file = file)
