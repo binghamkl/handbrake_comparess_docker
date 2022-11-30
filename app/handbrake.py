@@ -1,5 +1,5 @@
 import time
-import datetime
+from datetime import datetime as dt
 import os
 import subprocess
 import shutil
@@ -20,14 +20,19 @@ def ConvertFile(src_dir : str, file : str, preset = "Fast 1080p30"):
                 os.remove(os.path.join(src_dir, file))
             else:
                 print("Error moving file {0}".format(copy_to))
+
         except subprocess.CalledProcessError as ex1:
+            write_to_error_log(str(ex1))
             print(str(ex1))
-        print ("complete", flush=True)
+            return False
     except Exception as ex:
+        write_to_error_log(args + chr(13) + str(ex))
         print("Error ")
         print(args, flush=True)
         print(str(ex), flush=True)
         print(file, flush=True)
+        return False
+    return True
 
 def valid_file(file : str):
     if file.endswith(".ts"):
@@ -35,16 +40,77 @@ def valid_file(file : str):
     return False
 
 def walk_directories(source_dir : str):
+
+    summary = [0, 0, 0]
+
     for dir, directories, files in os.walk(source_dir):
         for file in files:
             if valid_file(file):
-                ConvertFile(dir, file)
+                summary[0] += 1
+                result = ConvertFile(dir, file)
+                if result:
+                    summary[1] += 1
+                else:
+                    summary[2] += 1
 
+
+    return summary
+
+
+def write_to_log_convert(info : str):
+    """
+        Writes information to the log in the root.
+
+    :return:
+    """
+    try:
+
+        file = open(os.path.join(source_dir, "plexhandbrake.log"), "a")
+        date_str = dt.now().strftime("%m/%d/%Y, %H:%M:%S")
+        print("{0:22}{1}".format(date_str, info), file = file)
+        file.close();
+    except Exception as ex:
+        write_to_error_log(str(ex))
+
+def write_to_error_log(error : str):
+    """
+        writes out the error log.
+    :param error:
+    :return:
+    """
+    try:
+        file = open(os.path.join(source_dir, "plexhandbrake_error.log"), "a")
+        date_str = dt.now().strftime("%m/%d/%Y, %H:%M:%S")
+        print("{0:22}{1}".format(date_str, error), file=file)
+        file.close()
+    except Exception as ex:
+        print("error writing to error log")
+        print(str(ex), flush=True)
 
 source_dir = "/source"
 work_dir = "/work"
 
+def write_summary(results : list):
+    """
+    Writes out the results to a summary file.
+    :param results:
+    :return:
+    """
+    try:
+        log_file = os.path.join(source_dir, "plexhandbrake_summary.log")
+        existed = os.path.exists(log_file)
+        file = open(log_file, "a")
+        if not existed:
+            print("{0:22}{1:10}{1:10}{1:10}".format("DateTime", "Files2Conv", "Success", "Errors"), file=file)
+
+        date_str = dt.now().strftime("%m/%d/%Y, %H:%M:%S")
+        print("{0:22}{1:10}{1:10}{1:10}".format(date_str, results[0], results[1], results[2]), file = file)
+        file.close();
+
+    except Exception as ex:
+        write_to_error_log(str(ex))
+
 while True:
-    walk_directories(source_dir)
+    write_summary(walk_directories(source_dir))
     time.sleep(60 * 60)
 
