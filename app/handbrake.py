@@ -16,8 +16,10 @@ def ConvertFile(src_dir : str, file : str, preset = "Fast 1080p30"):
             # success remove the original file
             copy_to = os.path.join(src_dir, newfile)
             shutil.move(outfile, copy_to)
-
-            os.remove(os.path.join(src_dir, file))
+            if os.path.exists(copy_to):
+                os.remove(os.path.join(src_dir, file))
+            else:
+                print("Error moving file {0}".format(copy_to))
         except subprocess.CalledProcessError as ex1:
             print(str(ex1))
         print ("complete", flush=True)
