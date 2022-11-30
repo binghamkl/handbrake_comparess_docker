@@ -2,16 +2,21 @@ import time
 import datetime
 import os
 import subprocess
+import shutil
 
 def ConvertFile(src_dir : str, file : str, preset = "Fast 1080p30"):
     try:
         # preset = "H.265 QSV 1080p"
         newfile = file[:-3] + ".mp4"
-        args = ["-i", os.path.join(src_dir, file),  "-o", os.path.join(src_dir, newfile), "--preset", preset]
+        outfile = os.path.join(work_dir, newfile)
+        args = ["-i", os.path.join(src_dir, file),  "-o", outfile, "--preset", preset]
         # subprocess.Popen(["HandBrakeCLI"] + args)
         try:
             subprocess.check_call(["HandBrakeCLI"] + args)
             # success remove the original file
+            copy_to = os.path.join(src_dir, newfile)
+            shutil.move(outfile, copy_to)
+
             os.remove(os.path.join(src_dir, file))
         except subprocess.CalledProcessError as ex1:
             print(str(ex1))
@@ -27,13 +32,17 @@ def valid_file(file : str):
         return True
     return False
 
+def walk_directories(source_dir : str):
+    for dir, directories, files in os.walk(source_dir):
+        for file in files:
+            if valid_file(file):
+                ConvertFile(dir, file)
+
+
 source_dir = "/source"
-for dir, directories, files in os.walk(source_dir):
-    for file in files:
-        if valid_file(file):
-            ConvertFile(dir, file)
+work_dir = "/work"
 
 while True:
-    time.sleep(10)
-    print(datetime.datetime.now(), flush=True)
+    walk_directories(source_dir)
+    time.sleep(60 * 60)
 
