@@ -9,7 +9,8 @@ def ConvertFile(src_dir : str, file : str, preset = "Fast 1080p30"):
         # preset = "H.265 QSV 1080p"
         newfile = file[:-3] + ".mp4"
         outfile = os.path.join(work_dir, newfile)
-        args = ["-i", os.path.join(src_dir, file),  "-o", outfile, "--preset", preset]
+        convert_file = os.path.join(src_dir, file)
+        args = ["-i", convert_file,  "-o", outfile, "--preset", preset]
         # subprocess.Popen(["HandBrakeCLI"] + args)
         try:
             subprocess.check_call(["HandBrakeCLI"] + args)
@@ -32,6 +33,7 @@ def ConvertFile(src_dir : str, file : str, preset = "Fast 1080p30"):
         print(str(ex), flush=True)
         print(file, flush=True)
         return False
+    write_to_log(f"{convert_file:}->{copy_to:}")
     return True
 
 def valid_file(file : str):
@@ -57,7 +59,7 @@ def walk_directories(source_dir : str):
     return summary
 
 
-def write_to_log_convert(info : str):
+def write_to_log(info : str):
     """
         Writes information to the log in the root.
 
@@ -104,7 +106,7 @@ def write_summary(results : list):
             print("{0:22}{1:10}{2:10}{3:10}".format("DateTime", "Files", "Success", "Errors"), file=file)
 
         date_str = dt.now().strftime("%m/%d/%Y, %H:%M:%S")
-        print("{0:22}{1:10}{1:10}{1:10}".format(date_str, results[0], results[1], results[2]), file = file)
+        print("{0:22}{1:10}{2:10}{3:10}".format(date_str, results[0], results[1], results[2]), file = file)
         file.close();
 
     except Exception as ex:
