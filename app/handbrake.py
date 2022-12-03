@@ -10,6 +10,7 @@ def ConvertFile(src_dir : str, file : str, preset = "Fast 1080p30"):
         newfile = file[:-3] + ".mp4"
         outfile = os.path.join(work_dir, newfile)
         convert_file = os.path.join(src_dir, file)
+        write_to_log(f"Start {convert_file:}")
         args = ["-i", convert_file,  "-o", outfile, "--preset", preset]
         # subprocess.Popen(["HandBrakeCLI"] + args)
         try:
@@ -20,6 +21,7 @@ def ConvertFile(src_dir : str, file : str, preset = "Fast 1080p30"):
             if os.path.exists(copy_to):
                 os.remove(os.path.join(src_dir, file))
             else:
+                write_to_error_log("Error moving file {0}".format(copy_to))
                 print("Error moving file {0}".format(copy_to))
 
         except subprocess.CalledProcessError as ex1:
