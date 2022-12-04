@@ -1,8 +1,13 @@
 import time
 from datetime import datetime as dt
+import datetime as date_util
 import os
 import subprocess
 import shutil
+
+source_dir = "/source"
+work_dir = "/work"
+
 
 def ConvertFile(src_dir : str, file : str, preset = "Fast 1080p30"):
     try:
@@ -91,9 +96,6 @@ def write_to_error_log(error : str):
         print("error writing to error log")
         print(str(ex), flush=True)
 
-source_dir = "/source"
-work_dir = "/work"
-
 def write_summary(results : list):
     """
     Writes out the results to a summary file.
@@ -114,7 +116,15 @@ def write_summary(results : list):
     except Exception as ex:
         write_to_error_log(str(ex))
 
-while True:
-    write_summary(walk_directories(source_dir))
-    time.sleep(60 * 60)
+def seconds_until_midnight():
+    now = dt.now().astimezone()
+    next_day = now + date_util.timedelta(days=1)
+    midnight = dt(next_day.year, next_day.month, next_day.day, 0, 0, 0).astimezone()
+    return (midnight - now).total_seconds()
+
+
+if __name__ == "__main__":
+    while True:
+        write_summary(walk_directories(source_dir))
+        time.sleep(seconds_until_midnight())
 
