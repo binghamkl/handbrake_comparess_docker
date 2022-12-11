@@ -18,10 +18,10 @@
 #RUN ./configure --launch-jobs=$(nproc) --launch --enable-qsv --disable-gtk
 #RUN make --directory=build install
 
-FROM alpine:edge
-RUN apk update && apk add --no-cache handbrake --repository="http://dl-cdn.alpinelinux.org/alpine/edge/testing"
+# FROM alpine:edge
+#RUN apk update && apk add --no-cache handbrake --repository="http://dl-cdn.alpinelinux.org/alpine/edge/testing"
 
-#FROM jlesage/handbrake
+FROM jlesage/handbrake
 RUN apk update
 # Install python/pip
 ENV PYTHONUNBUFFERED=1
