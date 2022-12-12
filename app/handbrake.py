@@ -19,12 +19,12 @@ def encode_file(src_dir: str, file: str, preset="Fast 1080p30"):
     """
     args = []
     try:
-        preset = "Hardware/H.265 VCN 1080p"
+        # preset = "Hardware/H.265 VCN 1080p"
         newfile = file[:-3] + ".mp4"
         outfile = os.path.join(work_dir, newfile)
         convert_file = os.path.join(src_dir, file)
         write_to_log(f"Start {convert_file:}")
-        args = ["-v", "-i", convert_file, "-o", outfile, "--preset", preset, "-e", "H.264 (x264)"]
+        args = ["-v", "-i", convert_file, "-o", outfile, "--preset", preset] # , "-e", "H.264 (x264)"]
         # subprocess.Popen(["HandBrakeCLI"] + args)
         try:
             subprocess.check_call(["HandBrakeCLI"] + args)
