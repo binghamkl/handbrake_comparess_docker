@@ -20,6 +20,7 @@ def encode_file(src_dir: str, file: str, preset="Fast 1080p30"):
     args = []
     try:
         # preset = "Hardware/H.265 VCN 1080p"
+        preset = "HQ 1080p30 Surround"
         newfile = file[:-3] + ".mp4"
         outfile = os.path.join(work_dir, newfile)
         convert_file = os.path.join(src_dir, file)
