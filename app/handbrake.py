@@ -77,7 +77,7 @@ def walk_directories(from_dir: str):
 
     for sdir, directories, files in os.walk(from_dir):
         for file in files:
-            if valid_file(file):
+            if valid_file(file) and not sdir.endswith(".grab"):
                 summary[0] += 1
                 result = encode_file(sdir, file)
                 if result:
