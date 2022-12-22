@@ -4,12 +4,20 @@ import datetime as date_util
 import os
 import subprocess
 import shutil
+import ffmpeg
 
 source_dir = "/source"
 work_dir = "/work"
+copy_to_ext = ".ts"
 
 
-def encode_file(src_dir: str, file: str, preset="Fast 1080p30"):
+HARDWARE_VCN = "Hardware/H.265 VCN 1080p"
+HQ = "HQ 1080p30 Surround"
+FAST = "Fast 1080p30"
+VERY_FAST = "Very Fast 1080p30"
+VERY_FAST_720 = "Very Fast 720p30"
+
+def encode_file(src_dir: str, file: str, preset=FAST):
     """
     Encodes the file at source directory with the preset given.
     :param src_dir:
@@ -20,8 +28,9 @@ def encode_file(src_dir: str, file: str, preset="Fast 1080p30"):
     args = []
     try:
         # preset = "Hardware/H.265 VCN 1080p"
-        preset = "HQ 1080p30 Surround"
-        newfile = file[:-3] + ".mp4"
+        # preset = "HQ 1080p30 Surround"
+        preset = HQ
+        newfile = file[:-3] + copy_to_ext
         outfile = os.path.join(work_dir, newfile)
         convert_file = os.path.join(src_dir, file)
         write_to_log(f"Start {convert_file:}")
@@ -30,10 +39,14 @@ def encode_file(src_dir: str, file: str, preset="Fast 1080p30"):
         try:
             subprocess.check_call(["HandBrakeCLI"] + args)
             # success remove the original file
+            from_file = os.path.join(src_dir, file)
+            os.rename(from_file, from_file + ".bak")
+
             copy_to = os.path.join(src_dir, newfile)
             shutil.move(outfile, copy_to)
             if os.path.exists(copy_to):
-                os.remove(os.path.join(src_dir, file))
+                # os.remove(os.path.join(src_dir, file))
+                pass
             else:
                 write_to_error_log("Error moving file {0}".format(copy_to))
                 print("Error moving file {0}".format(copy_to))
@@ -53,14 +66,20 @@ def encode_file(src_dir: str, file: str, preset="Fast 1080p30"):
     return True
 
 
-def valid_file(file: str):
+def valid_file(s_dir : str, file: str):
     """
     Returns True if file ends in .ts, otherwise returns False
     :param file:
     :return:
     """
     if file.endswith(".ts"):
-        return True
+        file_props = ffmpeg.probe(os.path.join(s_dir, file))
+        try:
+            format = file_props["format"]["format_name"]
+            if "mpegts" in format:
+                return True
+        except Exception as ex:
+            write_to_error_log("Could not get format for file " + os.path.join(s_dir, file))
     return False
 
 
@@ -77,7 +96,7 @@ def walk_directories(from_dir: str):
 
     for sdir, directories, files in os.walk(from_dir):
         for file in files:
-            if valid_file(file) and ".grab" not in sdir:
+            if valid_file(sdir, file) and ".grab" not in sdir:
                 summary[0] += 1
                 result = encode_file(sdir, file)
                 if result:
