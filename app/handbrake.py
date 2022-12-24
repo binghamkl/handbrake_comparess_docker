@@ -45,8 +45,7 @@ def encode_file(src_dir: str, file: str, preset=FAST):
             copy_to = os.path.join(src_dir, newfile)
             shutil.move(outfile, copy_to)
             if os.path.exists(copy_to):
-                # os.remove(os.path.join(src_dir, file))
-                pass
+                os.remove(from_file + ".bak")
             else:
                 write_to_error_log("Error moving file {0}".format(copy_to))
                 print("Error moving file {0}".format(copy_to))
